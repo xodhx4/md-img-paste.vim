@@ -11,11 +11,15 @@ function! s:SafeMakeDir()
     if !exists('g:mdip_imgdir_absolute')
         if s:os == "Windows"
             let outdir = expand('%:p:h') . '\' . g:mdip_imgdir
-    else
-            let outdir = expand('%:p:h') . '/' . g:mdip_imgdir
+        else
+            if g:filename_folder == "true"
+                let outdir = expand('%:p:h') . '/' . g:mdip_imgdir . '/' . expand('%:t:r')
+            else
+                let outdir = expand('%:p:h') . '/' . g:mdip_imgdir
+            endif
         endif
     else
-	let outdir = g:mdip_imgdir
+      let outdir = g:mdip_imgdir
     endif
     if !isdirectory(outdir)
         call mkdir(outdir)
@@ -183,7 +187,11 @@ function! mdip#MarkdownClipboardImage()
     else
         " let relpath = s:SaveNewFile(g:mdip_imgdir, tmpfile)
         let extension = split(tmpfile, '\.')[-1]
-        let relpath = g:mdip_imgdir_intext . '/' . g:mdip_tmpname . '.' . extension
+        if g:filename_folder == "true"
+          let relpath = g:mdip_imgdir_intext . '/' . expand('%:t:r') . '/' . g:mdip_tmpname . '.' . extension
+        else
+          let relpath = g:mdip_imgdir_intext . '/' . g:mdip_tmpname . '.' . extension
+        endif
         execute "normal! i![" . g:mdip_tmpname[0:0]
         let ipos = getcurpos()
         execute "normal! a" . g:mdip_tmpname[1:] . "](" . relpath . ")"
@@ -208,4 +216,7 @@ if !exists('g:mdip_tmpname')
 endif
 if !exists('g:mdip_imgname')
     let g:mdip_imgname = 'image'
+endif
+if !exists('g:filename_folder')
+    let g:filename_folder = "false"
 endif
